@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FlatMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">djunior</a> &gt; <a href="index.source.html" class="el_package">iterator</a> &gt; <span class="el_source">FlatMap.java</span></div><h1>FlatMap.java</h1><pre class="source lang-java linenums">package iterator;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+public class FlatMap&lt;T&gt; implements Iterator&lt;T&gt; {
+
+    private final Iterator&lt;Iterator&lt;T&gt;&gt; data;
+<span class="fc" id="L11">    private Iterator&lt;T&gt; cursor = Collections.emptyIterator();</span>
+
+<span class="fc" id="L13">    public FlatMap(Iterator&lt;Iterator&lt;T&gt;&gt; data) {</span>
+<span class="fc" id="L14">        this.data = data;</span>
+<span class="fc" id="L15">    }</span>
+
+    @Override
+    public boolean hasNext() {
+<span class="fc bfc" id="L19" title="All 4 branches covered.">        while (data.hasNext() &amp;&amp; !cursor.hasNext()) {</span>
+<span class="fc" id="L20">            cursor = data.next();</span>
+        }
+<span class="fc" id="L22">        return cursor.hasNext();</span>
+    }
+
+    @Override
+    public T next() {
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (!hasNext()) {</span>
+<span class="fc" id="L28">            throw new NoSuchElementException();</span>
+        }
+<span class="fc" id="L30">        return cursor.next();</span>
+    }
+
+    public static void main(String[] args) {
+<span class="nc" id="L34">        Iterator&lt;Iterator&lt;Integer&gt;&gt; data = List.of(</span>
+<span class="nc" id="L35">                List.of(1, 2, 3).iterator(),</span>
+<span class="nc" id="L36">                List.of(4, 5, 6).iterator(),</span>
+<span class="nc" id="L37">                List.of(7, 8, 9).iterator()</span>
+<span class="nc" id="L38">        ).iterator();</span>
+<span class="nc" id="L39">        FlatMap&lt;Integer&gt; flat = new FlatMap&lt;&gt;(data);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        while (flat.hasNext()) {</span>
+<span class="nc" id="L41">            System.out.println(flat.next());</span>
+        }
+<span class="nc" id="L43">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

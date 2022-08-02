@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">djunior</a> &gt; <a href="index.source.html" class="el_package">map</a> &gt; <span class="el_source">SimpleMap.java</span></div><h1>SimpleMap.java</h1><pre class="source lang-java linenums">package map;
+
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+<span class="fc" id="L7">public class SimpleMap&lt;K, V&gt; implements Map&lt;K, V&gt; {</span>
+
+    private static final float LOAD_FACTOR = 0.75f;
+<span class="fc" id="L10">    private int capacity = 8;</span>
+<span class="fc" id="L11">    private int count = 0;</span>
+<span class="fc" id="L12">    private int modCount = 0;</span>
+
+
+<span class="fc" id="L15">    private MapEntry&lt;K, V&gt;[] table = new MapEntry[capacity];</span>
+
+    @Override
+    public boolean put(K key, V value) {
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (count + 1 &gt;= LOAD_FACTOR * table.length) {</span>
+<span class="fc" id="L20">            expand();</span>
+        }
+<span class="fc" id="L22">        int hashCode = hashCode(key.hashCode());</span>
+<span class="fc" id="L23">        int index = indexFor(hashCode);</span>
+<span class="fc" id="L24">        MapEntry&lt;K, V&gt; entry = table[index];</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if (entry == null) {</span>
+<span class="fc" id="L26">            table[index] = new MapEntry&lt;&gt;(key, value);</span>
+        } else {
+<span class="nc" id="L28">           table[index].key = (K) new MapEntry&lt;K, V&gt;(key, value);</span>
+<span class="nc" id="L29">           return true;</span>
+        }
+<span class="fc" id="L31">        count++;</span>
+<span class="fc" id="L32">        modCount++;</span>
+<span class="fc" id="L33">        return false;</span>
+    }
+
+    private int hashCode(int hashCode) {
+<span class="fc" id="L37">        return (hashCode ^ (hashCode &gt;&gt;&gt; 31));</span>
+    }
+
+    private int indexFor(int hash) {
+<span class="fc" id="L41">        return Math.abs(hash) % table.length;</span>
+    }
+
+    private void expand() {
+<span class="fc" id="L45">        MapEntry&lt;K, V&gt;[] oldTable = table;</span>
+<span class="fc" id="L46">        table = new MapEntry[oldTable.length * 2];</span>
+<span class="fc" id="L47">        count = 0;</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        for (MapEntry&lt;K, V&gt; entry : oldTable) {</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">            if (entry != null) {</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                while (entry.value != null) {</span>
+<span class="fc" id="L51">                    put(entry.key, entry.value);</span>
+                    break;
+                }
+            }
+        }
+<span class="fc" id="L56">        count--;</span>
+<span class="fc" id="L57">        modCount++;</span>
+<span class="fc" id="L58">    }</span>
+
+    @Override
+    public V get(K key) {
+<span class="fc" id="L62">        int index = indexFor(key.hashCode());</span>
+<span class="fc" id="L63">        MapEntry&lt;K, V&gt; entry = table[index];</span>
+<span class="fc" id="L64">        count++;</span>
+<span class="fc" id="L65">        return entry.value;</span>
+    }
+
+    @Override
+    public boolean remove(K key) {
+<span class="fc" id="L70">        int index = indexFor(key.hashCode());</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (table[index] == null) {</span>
+<span class="fc" id="L72">            return false;</span>
+        }
+<span class="fc" id="L74">        MapEntry&lt;K, V&gt; entry = table[index];</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        while (entry.value != null) {</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">            if (key.equals(entry.key)) {</span>
+<span class="fc" id="L77">                entry.value = null;</span>
+<span class="fc" id="L78">                return true;</span>
+            }
+        }
+<span class="nc" id="L81">        count--;</span>
+<span class="nc" id="L82">        modCount++;</span>
+<span class="nc" id="L83">        return false;</span>
+    }
+
+    @Override
+    public Iterator&lt;K&gt; iterator() {
+<span class="fc" id="L88">        return new Iterator&lt;K&gt;() {</span>
+<span class="fc" id="L89">            int expectedModCount = modCount;</span>
+<span class="fc" id="L90">            int sizeValue = 0;</span>
+            @Override
+            public boolean hasNext() {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                if (expectedModCount != modCount) {</span>
+<span class="fc" id="L94">                    throw new ConcurrentModificationException();</span>
+                }
+<span class="fc bfc" id="L96" title="All 4 branches covered.">                while (sizeValue &lt; table.length &amp;&amp; table[sizeValue] == null) {</span>
+<span class="fc" id="L97">                    sizeValue++;</span>
+                }
+<span class="fc bfc" id="L99" title="All 2 branches covered.">                return sizeValue &lt; table.length;</span>
+            }
+
+            @Override
+            public K next() {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">                if (!hasNext()) {</span>
+<span class="fc" id="L105">                    throw new NoSuchElementException();</span>
+                }
+<span class="fc" id="L107">                return table[sizeValue++].key;</span>
+            }
+        };
+    }
+
+    private static class MapEntry&lt;K, V&gt; {
+        K key;
+        V value;
+
+
+<span class="fc" id="L117">        public MapEntry(K key, V value) {</span>
+<span class="fc" id="L118">            this.key = key;</span>
+<span class="fc" id="L119">            this.value = value;</span>
+<span class="fc" id="L120">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

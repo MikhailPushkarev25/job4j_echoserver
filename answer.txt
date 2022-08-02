@@ -1,0 +1,8 @@
+hi
+do you speak English
+
+продолжить
+What is surname?
+
+стоп
+закончить

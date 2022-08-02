@@ -1,0 +1,14 @@
+list\SimpleLinkedListTest.class
+map\SimpleMapTest.class
+tree\SimpleTreeTest.class
+list\SimpleStackTest.class
+list\ListUtilsTest.class
+io\ConfigTest.class
+Set\SimpleSetTest.class
+iterator\BackwardArrayItTest.class
+list\SimpleQueueTest.class
+list\SimpleArrayListTest.class
+list\ForwardLinkedTest.class
+iterator\FlatMapTest.class
+iterator\MatrixItTest.class
+io\AnalizyTest.class
